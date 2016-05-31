@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, redirect
-
+from flask import Flask, Render_Template, request, redirect
+import request
 app = Flask(__name__)
 
 @app.route('/')
 def main():
-  return redirect('/index')
+  return "Hello World! ws"
 
 @app.route('/index')
 def index():

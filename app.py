@@ -4,51 +4,48 @@ from bokeh.embed import components
 import simplejson as json
 import requests
 import datetime
+import time
 from dateutil.relativedelta import relativedelta
 import pandas as pd
 
 app = Flask(__name__)
 
-# Accept inputs
-
 @app.route('/')
-def main():
-  # Fetch stock data
-  start_date = datetime.date.today() - relativedelta(days=5)
-  end_date = datetime.date.today()
-  #print start_date
-  #print type(datetime.date.today())
-  stock = "AAPL"
+def input():
+  return render_template('index.html')
 
-  api_url = "https://www.quandl.com/api/v3/datasets/WIKI/%s.json?api_key=AbHy5cdz65R3V9XKLexS&start_date=%s" % (stock, str(start_date))
+@app.route('/output', methods=['getlist', 'post'])
+def output():
+
+  # Receive inputs
+  start_date = request.form['start_date']
+  end_date = request.form['end_date']
+  ticker = request.form['ticker']
+  features = request.form.getlist('features')
+
+  # Fetch stock data
+  api_url = "https://www.quandl.com/api/v3/datasets/WIKI/%s.json?api_key=AbHy5cdz65R3V9XKLexS&start_date=%s&end_date=%s" % (ticker, start_date, end_date)
 
   s = requests.Session()
   s.mount('https://', requests.adapters.HTTPAdapter(max_retries=3))
   r = s.get(api_url)
 
+
   # Store data
   data = json.loads(r.text)
-  #print json.dumps(data, indent=4)
-  #print json.dumps(data['dataset']['column_names'], indent=4)
-  #print type(data['dataset']['column_names'])
   df = pd.DataFrame(data=data['dataset']['data'], columns=data['dataset']['column_names'])
-  #print df.iloc[0:3,1]
+
 
   # Build plot
-  #output_file("graph2.html")
-  #print pd.to_datetime(df['Date'])
-  #print type(pd.to_datetime([1, 2]))
-
-  p = figure(title="%s: %s - %s" % (stock, start_date.strftime("%B %d, %Y"), end_date.strftime("%B %d, %Y")), x_axis_type='datetime')
+  p = figure(title="%s: %s - %s" % (ticker, time.strftime('%B %e, %Y', time.strptime(start_date, '%Y-%m-%d')), time.strftime('%B %e, %Y', time.strptime(end_date, '%Y-%m-%d'))), x_axis_type='datetime')
   p.xaxis.axis_label = 'Date'
   p.yaxis.axis_label = 'Stock Price (USD)'
-  #p.title_text_font_size = '12pt'
-  p.line(pd.to_datetime(df['Date']), y=df['Open'], line_width=2)
+  palette = ['red', 'blue', 'green', 'orange']
+  for i in range(len(features)):
+   p.line(pd.to_datetime(df['Date']), y=df[features[i]], line_width=2, line_dash=[2, 4, 2], line_dash_offset=8*i, line_color=palette[i], legend='%s' %features[i])
   
   script, div = components(p)
-  print script, div
-  return 
-  #return render_template('graph.html', script=script, div=div)
+  return render_template('graph.html', script=script, div=div)
 
 if __name__ == '__main__':
-  app.run(port=33507)
+  app.run(host='0.0.0.0')

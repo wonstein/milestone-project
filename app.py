@@ -35,7 +35,7 @@ def main():
   #print df.iloc[0:3,1]
 
   # Build plot
-  output_file("graph2.html")
+  #output_file("graph2.html")
   #print pd.to_datetime(df['Date'])
   #print type(pd.to_datetime([1, 2]))
 
@@ -46,7 +46,9 @@ def main():
   p.line(pd.to_datetime(df['Date']), y=df['Open'], line_width=2)
   
   script, div = components(p)
-  return render_template('graph.html', script=script, div=div)
+  print script, div
+  return 
+  #return render_template('graph.html', script=script, div=div)
 
 if __name__ == '__main__':
   app.run(port=33507)

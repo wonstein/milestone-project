@@ -45,6 +45,7 @@ def output():
    p.line(pd.to_datetime(df['Date']), y=df[features[i]], line_width=2, line_dash=[2, 4, 2], line_dash_offset=8*i, line_color=palette[i], legend='%s' %features[i])
   
   script, div = components(p)
+  
   return render_template('graph.html', script=script, div=div)
 
 if __name__ == '__main__':

@@ -4,9 +4,9 @@
     <script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.1.min.js"></script>
     {{ script | safe }}
   </head>
-  <body>
+  <body
      <div class=page>
-       <h1>Output</h1>
+       <h1> Header text </h1>
        {{ div | safe }}
      </div>
   </body>
